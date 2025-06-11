@@ -1,0 +1,35 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "square.h"
+
+int main(int argc, char *argv[]) {
+    CLIENT *clnt;
+    int num, *result;
+
+    if (argc != 2) {
+        fprintf(stderr, "Uso: %s <nombre_del_host>\n", argv[0]);
+        exit(1);
+    }
+
+    clnt = clnt_create(argv[1], SQUARE_PROG, SQUARE_VERS, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror(argv[1]);
+        exit(1);
+    }
+
+    printf("Ingrese un número entero: ");
+    scanf("%d", &num);
+
+    result = square_1(&num, clnt);
+    if (result == NULL) {
+        clnt_perror(clnt, "Error en la llamada remota");
+        exit(1);
+    }
+
+    printf("El cuadrado de %d es %d\n", num, *result);
+
+    clnt_destroy(clnt);
+    return 0;
+}
+
+Forma de ejecutar : ./square_client localhost
