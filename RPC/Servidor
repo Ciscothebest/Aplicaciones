@@ -1,0 +1,12 @@
+#include <stdio.h>
+#include "square.h"
+
+int *square_1_svc(int *num, struct svc_req *req) {
+    static int result;
+    result = (*num) * (*num);
+    printf("Servidor: recibido %d, enviando %d\n", *num, result);
+    return &result;
+}
+
+
+Forma de ejecutar: ./square_server
