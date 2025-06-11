@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <netinet/in.h>
+
+#define PUERTO 12345
+#define BUFFER_SIZE 1024
+
+int main() {
+    int servidor_fd, nuevo_socket;
+    struct sockaddr_in direccion;
+    char buffer[BUFFER_SIZE] = {0};
+
+    servidor_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (servidor_fd == 0) {
+        perror("Error al crear el socket");
+        exit(EXIT_FAILURE);
+    }
+
+    direccion.sin_family = AF_INET;
+    direccion.sin_addr.s_addr = INADDR_ANY;
+    direccion.sin_port = htons(PUERTO);
+
+    if (bind(servidor_fd, (struct sockaddr*)&direccion, sizeof(direccion)) < 0) {
+        perror("Error en bind");
+        close(servidor_fd);
+        exit(EXIT_FAILURE);
+    }
+
+    listen(servidor_fd, 3);
+    printf("[SERVIDOR] Esperando conexiones en el puerto %d...\n", PUERTO);
+
+    nuevo_socket = accept(servidor_fd, NULL, NULL);
+    if (nuevo_socket < 0) {
+        perror("Error al aceptar conexión");
+        close(servidor_fd);
+        exit(EXIT_FAILURE);
+    }
+
+    read(nuevo_socket, buffer, BUFFER_SIZE);
+    printf("[SERVIDOR] Mensaje recibido: %s\n", buffer);
+    send(nuevo_socket, "Mensaje recibido correctamente", strlen("Mensaje recibido correctamente"), 0);
+
+    close(nuevo_socket);
+    close(servidor_fd);
+    return 0;
+}
